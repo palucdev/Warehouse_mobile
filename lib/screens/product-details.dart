@@ -9,10 +9,7 @@ class ProductDetailsState extends State<ProductDetails> {
         title: Text('Product details'),
       ),
       body: ListView(
-        children: [
-          _buildProductDetails()
-        ]
-      ),
+          children: [_buildProductDetails(), _buildButtonSelectionBar()]),
     );
   }
 
@@ -56,6 +53,53 @@ class ProductDetailsState extends State<ProductDetails> {
             Text(widget.product.quantity.toString()),
           ],
         ));
+  }
+
+  Widget _buildButtonSelectionBar() {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          MaterialButton(
+            child: buildButtonColumn(Icons.add_circle, 'Add products'),
+            onPressed: () {},
+          ),
+          MaterialButton(
+            child: buildButtonColumn(Icons.remove_circle, 'Remove products'),
+            onPressed: () {},
+          ),
+          MaterialButton(
+            child: buildButtonColumn(Icons.refresh, 'Refresh'),
+            onPressed: () {},
+          )
+        ],
+      ),
+    );
+  }
+
+  Column buildButtonColumn(IconData icon, String label, [buttonFn]) {
+    Color color = Theme
+        .of(context)
+        .primaryColor;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: color),
+        Container(
+          margin: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.0,
+              fontWeight: FontWeight.w400,
+              color: color,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

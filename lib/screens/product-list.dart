@@ -45,7 +45,7 @@ class ProductListState extends State<ProductList> {
           final index = i ~/ 2; // i by 2 with int result
 
           if (index >= _products.length) {
-            return;
+            return null;
           }
 
           return _buildRow(_products[index]);
