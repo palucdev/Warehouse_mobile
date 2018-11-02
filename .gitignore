@@ -3,7 +3,9 @@
 
 .packages
 .pub/
+.idea/
 
 build/
+android/
 
 .flutter-plugins
