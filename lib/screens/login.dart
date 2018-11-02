@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:validate/validate.dart';
+import 'package:warehouse_mobile/data/db_helper.dart';
+import 'package:warehouse_mobile/data/rest_ds.dart';
+import 'package:warehouse_mobile/model/user.dart';
 
 class _LoginData {
   String email = '';
@@ -12,8 +15,11 @@ class LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   _LoginData _data = new _LoginData();
 
+  RestDatasource api = new RestDatasource();
+
   @override
   Widget build(BuildContext context) {
+    this._ctx = context;
     final Size screenSize = MediaQuery.of(context).size;
 
     return new Scaffold(
@@ -64,7 +70,13 @@ class LoginScreenState extends State<LoginScreen> {
 
     if (form.validate()) {
       form.save();
-      print("submit success");
+      print('Performing API call with data: ' +
+          this._data.email +
+          " " +
+          this._data.password);
+      this.api.login(this._data.email, this._data.password).then((User user) {
+        this.onLoginSuccess(user);
+      }).catchError((Object error) => this.onLoginError(error.toString()));
     }
   }
 
@@ -79,11 +91,23 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   String _validatePassword(String value) {
-    if (value.length < 8) {
-      return "Password must be at least 8 characters";
+    if (value.length < 3) {
+      return "Password must be at least 3 characters";
     }
 
     return null;
+  }
+
+  void onLoginError(String errorText) {
+    print("Login error:");
+    print(errorText);
+  }
+
+  void onLoginSuccess(User user) {
+    print("Login success");
+    var db = new DatabaseHelper();
+    db.saveUser(user);
+    Navigator.of(_ctx).pushReplacementNamed("/home");
   }
 }
 
