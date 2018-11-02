@@ -1,6 +1,6 @@
-import 'package:werehouse_mobile/model/product.dart';
+import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
-import 'package:werehouse_mobile/screens/product-details.dart';
+import 'package:warehouse_mobile/screens/product-details.dart';
 
 class ProductListState extends State<ProductList> {
   List<Product> _products = <Product>[];

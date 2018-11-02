@@ -1,6 +1,6 @@
-# werehouse_mobile
+# Warehouse_mobile
 
-Simple mobile app used to werehouse communication
+Simple mobile app used to warehouse communication
 
 ## Getting Started
 

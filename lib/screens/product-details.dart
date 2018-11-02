@@ -1,4 +1,4 @@
-import 'package:werehouse_mobile/model/product.dart';
+import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailsState extends State<ProductDetails> {
