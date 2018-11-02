@@ -23,6 +23,9 @@ dependencies:
   # Form inputs validation
   validate: ^1.7.0
 
+  # For secure memory to save token
+  shared_preferences: ^0.4.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

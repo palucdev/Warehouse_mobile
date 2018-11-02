@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/screens/product-details.dart';
@@ -7,17 +10,10 @@ class ProductListState extends State<ProductList> {
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
-  void _initMockProducts() {
-    this._products = [
-      new Product('Samsung', 'S24F356FHUX', 499.99, 'PLN', 10),
-      new Product('LG', '24MP59G', 599.00, 'PLN', 21),
-      new Product('Dell', 'P2417H', 699.99, 'PLN', 3),
-      new Product('Acer', 'Nitro VG230YBMIIX', 569.99, 'PLN', 1),
-      new Product('AOC', 'C24G1', 849.50, 'PLN', 0),
-      new Product('Iiyama', 'G-Master G2530HSU', 639.00, 'PLN', 20),
-      new Product('BenQ', 'GW2280E', 379.99, 'PLN', 3),
-      new Product('Philips', '223V5LSB2/10', 329.00, 'PLN', 7)
-    ];
+  RestDatasource api = new RestDatasource();
+
+  Future<List<Product>> _initMockProducts() async {
+    return this._products = await api.getProducts();
   }
 
   void _productDetails(Product product) {
@@ -27,16 +23,27 @@ class ProductListState extends State<ProductList> {
 
   @override
   Widget build(BuildContext context) {
+    var futureBuilder = new FutureBuilder(
+      future: _initMockProducts(),
+      initialData: "Loading data...",
+      builder: (BuildContext context, AsyncSnapshot<dynamic> products) {
+        if (products.hasData) {
+          return _buildProducts();
+        } else {
+          return new CircularProgressIndicator();
+        }
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Tracked products'),
       ),
-      body: _buildProducts(),
+      body: futureBuilder,
     );
   }
 
   Widget _buildProducts() {
-    _initMockProducts();
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
