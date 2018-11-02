@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:warehouse_mobile/screens/product-list.dart';
+import 'package:warehouse_mobile/routes.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: ProductList()
+      routes: routes,
     );
   }
 }
