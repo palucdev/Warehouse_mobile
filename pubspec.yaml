@@ -1,5 +1,5 @@
 name: warehouse_mobile
-description: Simple mobile app used to werehouse communication
+description: Simple mobile app used to warehouse communication
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -25,6 +25,10 @@ dependencies:
 
   # For secure memory to save token
   shared_preferences: ^0.4.3
+
+  # 3rd party logging
+  google_sign_in: ^3.0.4
+  firebase_auth: ^0.6.2+1
 
 dev_dependencies:
   flutter_test:
