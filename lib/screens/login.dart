@@ -23,7 +23,7 @@ class LoginScreenState extends State<LoginScreen> {
   RestDatasource api = new RestDatasource();
 
   GoogleSignIn _googleSignIn =
-      new GoogleSignIn(signInOption: SignInOption.standard, scopes: ['openid']);
+      new GoogleSignIn(signInOption: SignInOption.standard, scopes: ['openid', 'profile']);
   GoogleSignInAccount _currentUser;
   GoogleSignInAuthentication _googleAuth;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -110,7 +110,11 @@ class LoginScreenState extends State<LoginScreen> {
 //      FirebaseUser user = await _auth.signInWithGoogle(
 //          idToken: _googleAuth.accessToken, accessToken: _googleAuth.idToken);
       print('Google auth: ' + this._googleAuth.accessToken.substring(0, 10));
-//      print('signed in' + user.displayName);
+
+      this.api.googleLogin(_googleAuth.accessToken, _googleAuth.idToken).then((User user) {
+        this.onLoginSuccess(user);
+      }).catchError((Object error) => this.onLoginError(error.toString()));
+
     } catch (error) {
       print('Google login error');
       print(error);

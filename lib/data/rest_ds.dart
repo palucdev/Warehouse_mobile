@@ -14,6 +14,7 @@ class RestDatasource {
   static final API_ENDPOINT = 'http://192.168.0.102';
   static final BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
   static final LOGIN_URL = BASE_URL + "/login";
+  static final GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static final PRODUCT_URL = BASE_URL + "/product";
   static final TOKEN_KEY = 'TOKEN';
 
@@ -37,6 +38,29 @@ class RestDatasource {
       } catch (e) {
         throw Exception('Malformed response body');
       }
+    });
+  }
+
+  Future<User> googleLogin(String accessToken, String idToken) {
+    print('RestDatasource | googleLogin | perfoming api call...');
+
+    Map<String, String> body = {'accessToken': accessToken, 'idToken': idToken};
+
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    return _netUtil
+      .post(GOOGLE_LOGIN_URL, body: json.encode(body), headers: headers)
+      .then((dynamic res) {
+       var resMap = json.decode(res);
+
+			 try {
+				 return new User.fromJson(resMap);
+			 } catch (e) {
+				 throw Exception('Malformed response body');
+			 }
     });
   }
 
