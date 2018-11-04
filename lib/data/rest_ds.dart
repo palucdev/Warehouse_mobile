@@ -38,7 +38,10 @@ class RestDatasource {
       } catch (e) {
         throw Exception('Malformed response body');
       }
-    });
+    }).catchError((error) {
+			//some error popup
+			print('Login error: ' + error.toString());
+		});;
   }
 
   Future<User> googleLogin(String accessToken, String idToken) {
@@ -61,7 +64,10 @@ class RestDatasource {
 			 } catch (e) {
 				 throw Exception('Malformed response body');
 			 }
-    });
+    }).catchError((error) {
+    	//some error popup
+			print('Google login error: ' + error.toString());
+		});
   }
 
   Future<List<Product>> getProducts() async {
@@ -77,6 +83,9 @@ class RestDatasource {
     return _netUtil.get(PRODUCT_URL, headers).then((dynamic res) {
       Iterable resCollection = json.decode(res);
       return resCollection.map((obj) => Product.fromJson(obj)).toList();
-    });
+    }).catchError((error) {
+			//some error popup
+			print('Get products error: ' + error.toString());
+		});
   }
 }

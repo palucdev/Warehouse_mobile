@@ -12,8 +12,12 @@ class ProductListState extends State<ProductList> {
 
   RestDatasource api = new RestDatasource();
 
-  Future<List<Product>> _initMockProducts() async {
+  Future<List<Product>> _getProducts() async {
     return this._products = await api.getProducts();
+  }
+
+  Future<void> _refreshProducts() async{
+    await _getProducts();
   }
 
   void _productDetails(Product product) {
@@ -24,7 +28,7 @@ class ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
     var futureBuilder = new FutureBuilder(
-      future: _initMockProducts(),
+      future: _getProducts(),
       initialData: "Loading data...",
       builder: (BuildContext context, AsyncSnapshot<dynamic> products) {
         if (products.hasData) {
@@ -38,6 +42,10 @@ class ProductListState extends State<ProductList> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tracked products'),
+        leading: IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _refreshProducts
+        )
       ),
       body: futureBuilder,
     );
