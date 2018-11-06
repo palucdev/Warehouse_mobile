@@ -9,14 +9,14 @@ import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 class RestDatasource {
   NetworkUtil _netUtil = new NetworkUtil();
 
-  static final API_BASE = '/api/v1';
-  static final APP_PORT = '2137';
-  static final API_ENDPOINT = 'http://192.168.0.102';
-  static final BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
-  static final LOGIN_URL = BASE_URL + "/login";
-  static final GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
-  static final PRODUCT_URL = BASE_URL + "/product";
-  static final TOKEN_KEY = 'TOKEN';
+  static const API_BASE = '/api/v1';
+  static const APP_PORT = '2137';
+  static const API_ENDPOINT = 'http://192.168.0.171';
+  static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
+  static const LOGIN_URL = BASE_URL + "/login";
+  static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
+  static const PRODUCT_URL = BASE_URL + "/product";
+
 
   Future<User> login(String email, String password) {
     print('RestDatasource | login | perfoming api call...');
@@ -24,8 +24,8 @@ class RestDatasource {
     Map<String, String> body = {'email': email, 'password': password};
 
     Map<String, String> headers = {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
+      'content-type': 'application/json',
+      'accept': 'application/json',
     };
 
     return _netUtil
@@ -41,7 +41,7 @@ class RestDatasource {
     }).catchError((error) {
 			//some error popup
 			print('Login error: ' + error.toString());
-		});;
+		});
   }
 
   Future<User> googleLogin(String accessToken, String idToken) {
@@ -50,14 +50,16 @@ class RestDatasource {
     Map<String, String> body = {'accessToken': accessToken, 'idToken': idToken};
 
     Map<String, String> headers = {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
+      'content-type': 'application/json',
+      'accept': 'application/json',
     };
 
     return _netUtil
       .post(GOOGLE_LOGIN_URL, body: json.encode(body), headers: headers)
       .then((dynamic res) {
        var resMap = json.decode(res);
+
+       print(resMap);
 
 			 try {
 				 return new User.fromJson(resMap);
@@ -72,12 +74,12 @@ class RestDatasource {
 
   Future<List<Product>> getProducts() async {
     String token =
-        await SharedPreferencesUtil.getStringValue(RestDatasource.TOKEN_KEY);
+        await SharedPreferencesUtil.getToken();
 
     Map<String, String> headers = {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token
+      'content-type': 'application/json',
+      'accept': 'application/json',
+      'authorization': token
     };
 
     return _netUtil.get(PRODUCT_URL, headers).then((dynamic res) {

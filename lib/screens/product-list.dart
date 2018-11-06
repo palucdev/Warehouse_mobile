@@ -4,6 +4,7 @@ import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/screens/product-details.dart';
+import 'package:warehouse_mobile/services/navigation_service.dart';
 
 class ProductListState extends State<ProductList> {
   List<Product> _products = <Product>[];
@@ -16,13 +17,15 @@ class ProductListState extends State<ProductList> {
     return this._products = await api.getProducts();
   }
 
-  Future<void> _refreshProducts() async{
+  Future<void> _refreshProducts() async {
     await _getProducts();
   }
 
   void _productDetails(Product product) {
-    Navigator.of(context).push(new MaterialPageRoute(
-        builder: (context) => ProductDetails(product: product)));
+    new NavigationService().materialNavigateTo(
+        new MaterialPageRoute(
+            builder: (context) => ProductDetails(product: product)),
+        context);
   }
 
   @override
@@ -41,12 +44,9 @@ class ProductListState extends State<ProductList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tracked products'),
-        leading: IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: _refreshProducts
-        )
-      ),
+          title: Text('Tracked products'),
+          leading: IconButton(
+              icon: const Icon(Icons.refresh), onPressed: _refreshProducts)),
       body: futureBuilder,
     );
   }

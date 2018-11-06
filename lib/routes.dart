@@ -4,6 +4,6 @@ import 'package:warehouse_mobile/screens/product-list.dart';
 
 final routes = {
   '/login': (BuildContext context) => new LoginScreen(),
-  '/home': (BuildContext context) => new ProductList(),
+  '/products': (BuildContext context) => new ProductList(),
   '/': (BuildContext context) => new LoginScreen()
 };

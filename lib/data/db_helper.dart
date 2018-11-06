@@ -8,7 +8,7 @@ class DatabaseHelper {
 
 	DatabaseHelper.internal();
 
-	User user = null;
+	User user;
 
 	void saveUser(User user) {
 		this.user = user;
