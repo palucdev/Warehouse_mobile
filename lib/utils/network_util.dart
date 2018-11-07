@@ -62,4 +62,23 @@ class NetworkUtil {
       return res;
     });
   }
+
+  Future<dynamic> patch(String url, {Map headers, body, encoding}) {
+    return http
+      .patch(url, body: body, headers: headers, encoding: encoding)
+      .then((http.Response response){
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+
+      _checkForUnauthorizedAttempt(response);
+
+      if (statusCode < 200 || statusCode > 400) {
+        throw new Exception("Error while fetching data");
+      }
+
+      _checkForTokenRefresh(response);
+
+      return res;
+    });
+  }
 }

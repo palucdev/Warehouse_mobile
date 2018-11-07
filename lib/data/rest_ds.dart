@@ -15,18 +15,28 @@ class RestDatasource {
   static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
   static const LOGIN_URL = BASE_URL + "/login";
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
+  static const PRODUCTS_URL = BASE_URL + "/products";
   static const PRODUCT_URL = BASE_URL + "/product";
 
+  Future<Map<String, String>> _getHeaders({bool auth}) async {
+    Map<String, String> headers = {
+      'content-type': 'application/json',
+      'accept': 'application/json'
+    };
 
-  Future<User> login(String email, String password) {
+    if (auth) {
+      headers['authorization'] = await SharedPreferencesUtil.getToken();
+    }
+
+    return headers;
+  }
+
+  Future<User> login(String email, String password) async {
     print('RestDatasource | login | perfoming api call...');
 
     Map<String, String> body = {'email': email, 'password': password};
 
-    Map<String, String> headers = {
-      'content-type': 'application/json',
-      'accept': 'application/json',
-    };
+    var headers = await _getHeaders(auth: false);
 
     return _netUtil
         .post(LOGIN_URL, body: json.encode(body), headers: headers)
@@ -39,55 +49,64 @@ class RestDatasource {
         throw Exception('Malformed response body');
       }
     }).catchError((error) {
-			//some error popup
-			print('Login error: ' + error.toString());
-		});
+      //some error popup
+      print('Login error: ' + error.toString());
+    });
   }
 
-  Future<User> googleLogin(String accessToken, String idToken) {
+  Future<User> googleLogin(String accessToken, String idToken) async {
     print('RestDatasource | googleLogin | perfoming api call...');
 
     Map<String, String> body = {'accessToken': accessToken, 'idToken': idToken};
 
-    Map<String, String> headers = {
-      'content-type': 'application/json',
-      'accept': 'application/json',
-    };
+    var headers = await _getHeaders(auth: false);
 
     return _netUtil
-      .post(GOOGLE_LOGIN_URL, body: json.encode(body), headers: headers)
-      .then((dynamic res) {
-       var resMap = json.decode(res);
+        .post(GOOGLE_LOGIN_URL, body: json.encode(body), headers: headers)
+        .then((dynamic res) {
+      var resMap = json.decode(res);
 
-       print(resMap);
+      print(resMap);
 
-			 try {
-				 return new User.fromJson(resMap);
-			 } catch (e) {
-				 throw Exception('Malformed response body');
-			 }
+      try {
+        return new User.fromJson(resMap);
+      } catch (e) {
+        throw Exception('Malformed response body');
+      }
     }).catchError((error) {
-    	//some error popup
-			print('Google login error: ' + error.toString());
-		});
+      //some error popup
+      print('Google login error: ' + error.toString());
+    });
   }
 
   Future<List<Product>> getProducts() async {
-    String token =
-        await SharedPreferencesUtil.getToken();
+    var headers = await _getHeaders(auth: true);
 
-    Map<String, String> headers = {
-      'content-type': 'application/json',
-      'accept': 'application/json',
-      'authorization': token
-    };
-
-    return _netUtil.get(PRODUCT_URL, headers).then((dynamic res) {
+    return _netUtil.get(PRODUCTS_URL, headers).then((dynamic res) {
       Iterable resCollection = json.decode(res);
       return resCollection.map((obj) => Product.fromJson(obj)).toList();
     }).catchError((error) {
-			//some error popup
-			print('Get products error: ' + error.toString());
-		});
+      //some error popup
+      print('Get products error: ' + error.toString());
+    });
+  }
+
+  Future<bool> changeProductItems(Product product, int quantity) async {
+    var headers = await _getHeaders(auth: true);
+
+    var url = PRODUCT_URL + '/' + product.id;
+
+    var body = {'quantity': quantity.toString()};
+
+    return _netUtil
+        .patch(url, body: json.encode(body), headers: headers)
+        .then((dynamic res) {
+      var response = json.decode(res);
+
+      print(response);
+      return true;
+    }).catchError((dynamic err) {
+      return false;
+    });
   }
 }
