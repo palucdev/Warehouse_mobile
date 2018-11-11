@@ -91,6 +91,18 @@ class RestDatasource {
     });
   }
 
+  Future<Product> getProduct(String productID) async {
+    var headers = await _getHeaders(auth: true);
+
+    var url = PRODUCT_URL + '/' + productID;
+
+    return _netUtil.get(url, headers).then((dynamic res) {
+      var resObj = json.decode(res);
+
+      return Product.fromJson(resObj);
+    });
+  }
+
   Future<bool> changeProductItems(Product product, int quantity) async {
     var headers = await _getHeaders(auth: true);
 

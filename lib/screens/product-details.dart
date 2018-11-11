@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 class ProductDetailsState extends State<ProductDetails> {
 
+	Product _product;
+
 	final textEditingController = TextEditingController();
 
 	RestDatasource api = new RestDatasource();
@@ -16,6 +18,21 @@ class ProductDetailsState extends State<ProductDetails> {
 	void dispose() {
 		textEditingController.dispose();
 		super.dispose();
+	}
+
+	@override
+	void didUpdateWidget(ProductDetails oldWidget) {
+		print('didUpdateWidget');
+		if (oldWidget.product != widget.product) {
+			_product = widget.product;
+		}
+		super.didUpdateWidget(oldWidget);
+	}
+
+	@override
+	void initState() {
+		super.initState();
+		this._product = widget.product;
 	}
 
 	@override
@@ -45,20 +62,20 @@ class ProductDetailsState extends State<ProductDetails> {
 								Container(
 									padding: const EdgeInsets.only(bottom: 8.0),
 									child: Text(
-										widget.product.modelName,
+                    this._product.modelName,
 										style: TextStyle(
 											fontWeight: FontWeight.bold,
 										),
 									),
 								),
 								Text(
-									widget.product.manufacturerName,
+                  this._product.manufacturerName,
 									style: TextStyle(
 										color: Colors.grey[500],
 									),
 								),
 								Text(
-									widget.product.price.toString() + widget.product.currency,
+									this._product.price.toString() + this._product.currency,
 									style: TextStyle(
 										color: Colors.blue,
 									),
@@ -70,7 +87,7 @@ class ProductDetailsState extends State<ProductDetails> {
 						Icons.shopping_cart,
 						color: Colors.red[500],
 					),
-					Text(widget.product.quantity.toString()),
+					Text(this._product.quantity.toString()),
 				],
 			));
 	}
@@ -90,7 +107,7 @@ class ProductDetailsState extends State<ProductDetails> {
 					),
 					MaterialButton(
 						child: buildButtonColumn(Icons.refresh, 'Refresh'),
-						onPressed: () {},
+						onPressed: _refreshProduct,
 					)
 				],
 			),
@@ -122,6 +139,18 @@ class ProductDetailsState extends State<ProductDetails> {
 		);
 	}
 
+	void _refreshProduct() async {
+		String productID = this._product.id;
+
+		Product refreshed = await this.api.getProduct(productID);
+
+		print('Refreshed product: ' + refreshed.modelName);
+
+		setState(() {
+			this._product = refreshed;
+		});
+	}
+
 	void _addProductsToWarehouse() async {
 		int quantity = await _showInputDialog();
 
@@ -137,7 +166,7 @@ class ProductDetailsState extends State<ProductDetails> {
 	void _changeProductsQuantity(int quantity) async {
 		if (quantity != null) {
 			bool itemsChanged = await this.api.changeProductItems(
-				widget.product, quantity);
+				this._product, quantity);
 
 			print(itemsChanged);
 			if (itemsChanged) {
@@ -149,6 +178,8 @@ class ProductDetailsState extends State<ProductDetails> {
 					new SnackBar(content: Text('Products not added, not enough room!'))
 				);
 			}
+
+			_refreshProduct();
 		}
 	}
 
