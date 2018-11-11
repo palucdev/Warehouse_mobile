@@ -4,6 +4,7 @@ import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/screens/product-details.dart';
+import 'package:warehouse_mobile/screens/product-new.dart';
 import 'package:warehouse_mobile/services/navigation_service.dart';
 
 class ProductListState extends State<ProductList> {
@@ -12,6 +13,8 @@ class ProductListState extends State<ProductList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   RestDatasource api = new RestDatasource();
+
+  BuildContext _ctx;
 
   Future<List<Product>> _getProducts() async {
     return this._products = await api.getProducts();
@@ -30,6 +33,8 @@ class ProductListState extends State<ProductList> {
 
   @override
   Widget build(BuildContext context) {
+    this._ctx = context;
+
     var futureBuilder = new FutureBuilder(
       future: _getProducts(),
       initialData: "Loading data...",
@@ -48,6 +53,7 @@ class ProductListState extends State<ProductList> {
           leading: IconButton(
               icon: const Icon(Icons.refresh), onPressed: _refreshProducts)),
       body: futureBuilder,
+      floatingActionButton: _buildFAB(),
     );
   }
 
@@ -78,6 +84,22 @@ class ProductListState extends State<ProductList> {
         onTap: () {
           _productDetails(product);
         });
+  }
+
+  Widget _buildFAB() {
+    return new FloatingActionButton(
+      elevation: 0.0,
+      child: new Icon(Icons.add),
+      backgroundColor: new Color(0xFF4CAF50),
+      onPressed: _newProduct,
+    );
+  }
+
+  void _newProduct() {
+    new NavigationService().materialNavigateTo(
+      new MaterialPageRoute(
+        builder: (context) => NewProduct()),
+      context);
   }
 }
 

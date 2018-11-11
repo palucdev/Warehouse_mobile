@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 class NavigationRoutes {
 	static const String LOGIN = '/login';
 	static const String PRODUCTS = '/products';
+	static const String NEW_PRODUCT = '/new_product';
 }
 
 class NavigationService {

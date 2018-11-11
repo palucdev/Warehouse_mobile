@@ -120,4 +120,26 @@ class RestDatasource {
       return false;
     });
   }
+
+  Future<Product> addProduct(String manufacturerName, String productModelName,
+      num price, String currency) async {
+    var headers = await _getHeaders(auth: true);
+
+    var body = {
+      'manufacturerName': manufacturerName,
+      'productModelName': productModelName,
+      'price': price,
+      'currency': currency
+    };
+
+    return _netUtil
+        .post(PRODUCTS_URL, body: json.encode(body), headers: headers)
+        .then((dynamic res) {
+      var productObj = json.decode(res);
+
+      return Product.fromJson(productObj);
+    }).catchError((dynamic err) {
+      return err;
+    });
+  }
 }
