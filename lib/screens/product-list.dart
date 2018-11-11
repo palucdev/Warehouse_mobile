@@ -52,7 +52,11 @@ class ProductListState extends State<ProductList> {
       appBar: AppBar(
           title: Text('Tracked products'),
           leading: IconButton(
-              icon: const Icon(Icons.refresh), onPressed: _refreshProducts)),
+              icon: const Icon(Icons.refresh), onPressed: _refreshProducts),
+        actions: <Widget>[
+          IconButton(icon: const Icon(Icons.power_settings_new), onPressed: _logout)
+        ],
+          ),
       body: futureBuilder,
       floatingActionButton: _buildFAB(),
     );
@@ -88,24 +92,23 @@ class ProductListState extends State<ProductList> {
   }
 
   Widget _buildFAB() {
-    var db = new DatabaseHelper();
-    if (db.user.role == 1) {
-      return new FloatingActionButton(
+    return new FloatingActionButton(
         elevation: 0.0,
         child: new Icon(Icons.add),
         backgroundColor: new Color(0xFF4CAF50),
-        onPressed: _newProduct
-      );
-    } else {
-      return null;
-    }
+        onPressed: _newProduct);
   }
 
   void _newProduct() {
     new NavigationService().materialNavigateTo(
-      new MaterialPageRoute(
-        builder: (context) => NewProduct()),
-      context);
+        new MaterialPageRoute(builder: (context) => NewProduct()), context);
+  }
+
+  void _logout() {
+    var db = new DatabaseHelper();
+    db.deleteUsers();
+
+    new NavigationService().popToLogin(this._ctx);
   }
 }
 

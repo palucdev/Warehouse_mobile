@@ -81,4 +81,23 @@ class NetworkUtil {
       return res;
     });
   }
+
+  Future<dynamic> delete(String url, Map headers) {
+    return http
+      .delete(url, headers: headers)
+      .then((http.Response response){
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+
+      _checkForUnauthorizedAttempt(response);
+
+      if (statusCode < 200 || statusCode > 400) {
+        throw new Exception("Error while fetching data");
+      }
+
+      _checkForTokenRefresh(response);
+
+      return res;
+    });
+  }
 }

@@ -27,7 +27,7 @@ class NavigationService {
 	}
 
 	// TODO: check for something that dont need ctx
-	void popToLogin() {
-		Navigator.of(this.currentContext).pushReplacementNamed(NavigationRoutes.LOGIN);
+	void popToLogin([BuildContext context]) {
+		Navigator.of(context != null ? context : this.currentContext).pushReplacementNamed(NavigationRoutes.LOGIN);
 	}
 }

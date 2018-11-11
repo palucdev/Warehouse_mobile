@@ -130,6 +130,14 @@ class RestDatasource {
     });
   }
 
+  Future<void> removeProduct(String productID) async {
+    var headers = await _getHeaders(auth: true);
+
+    var url = PRODUCTS_URL + '/' + productID;
+
+    return _netUtil.delete(url, headers);
+  }
+
   Future<bool> changeProductItems(Product product, int quantity) async {
     var headers = await _getHeaders(auth: true);
 

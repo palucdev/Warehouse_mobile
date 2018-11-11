@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:warehouse_mobile/data/db_helper.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
+import 'package:warehouse_mobile/services/navigation_service.dart';
 
 class ProductDetailsState extends State<ProductDetails> {
 
@@ -45,7 +47,8 @@ class ProductDetailsState extends State<ProductDetails> {
 				builder: (BuildContext context) {
 					this._ctx = context;
 					return ListView(
-						children: [_buildProductDetails(), _buildButtonSelectionBar()]);
+						children: [_buildProductDetails(), _buildButtonSelectionBar(), _buildRemoveButton()]
+							.where((Object o) => o != null).toList());
 				})
 		);
 	}
@@ -139,6 +142,22 @@ class ProductDetailsState extends State<ProductDetails> {
 		);
 	}
 
+	Widget _buildRemoveButton() {
+		var db = new DatabaseHelper();
+		if (db.user.role == 0) {
+			return RaisedButton(
+				child: new Text(
+					'Remove product',
+					style: new TextStyle(color: Colors.white),
+				),
+				onPressed: _removeProduct,
+				color: Colors.primaries[0],
+			);
+		}
+
+		return null;
+	}
+
 	void _refreshProduct() async {
 		String productID = this._product.id;
 
@@ -149,6 +168,14 @@ class ProductDetailsState extends State<ProductDetails> {
 		setState(() {
 			this._product = refreshed;
 		});
+	}
+
+	void _removeProduct() async {
+		String productID = this._product.id;
+
+		await this.api.removeProduct(productID);
+
+		new NavigationService().navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
 	}
 
 	void _addProductsToWarehouse() async {
