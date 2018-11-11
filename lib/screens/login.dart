@@ -6,6 +6,7 @@ import 'package:warehouse_mobile/data/db_helper.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:warehouse_mobile/screens/register.dart';
 import 'package:warehouse_mobile/services/navigation_service.dart';
 import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 
@@ -83,6 +84,18 @@ class LoginScreenState extends State<LoginScreen> {
                       color: Colors.primaries[0],
                     ),
                     margin: new EdgeInsets.only(top: 20.0),
+                  ),
+                  new Container(
+                    width: screenSize.width,
+                    child: new RaisedButton(
+                      child: new Text(
+                        'Register',
+                        style: new TextStyle(color: Colors.white),
+                      ),
+                      onPressed: _register,
+                      color: Colors.primaries[1],
+                    ),
+                    margin: new EdgeInsets.only(top: 20.0),
                   )
                 ]))));
   }
@@ -117,6 +130,13 @@ class LoginScreenState extends State<LoginScreen> {
       print('Google login error');
       print(error);
     }
+  }
+
+  void _register() {
+    new NavigationService().materialNavigateTo(
+      new MaterialPageRoute(
+        builder: (context) => RegisterScreen()),
+      context);
   }
 
   String _validateEmail(String value) {

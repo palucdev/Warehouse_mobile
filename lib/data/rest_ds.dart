@@ -14,6 +14,7 @@ class RestDatasource {
   static const API_ENDPOINT = 'http://192.168.0.171';
   static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
   static const LOGIN_URL = BASE_URL + "/login";
+  static const REGISTER_URL = BASE_URL + "/user";
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static const PRODUCTS_URL = BASE_URL + "/products";
 
@@ -50,6 +51,33 @@ class RestDatasource {
     }).catchError((error) {
       //some error popup
       print('Login error: ' + error.toString());
+    });
+  }
+
+  Future<User> register(String email, String password, String name, num role) async {
+    Map<String, String> body = {
+      'email': email,
+      'password': password,
+      'name': name,
+      'role': role.toString(),
+      'accType': 0.toString()
+    };
+
+    var headers = await _getHeaders(auth: false);
+
+    return _netUtil
+      .post(REGISTER_URL, body: json.encode(body), headers: headers)
+      .then((dynamic res) {
+      var resMap = json.decode(res);
+
+      try {
+        return new User.fromJson(resMap);
+      } catch (e) {
+        throw Exception('Malformed response body');
+      }
+    }).catchError((error) {
+      //some error popup
+      print('Register error: ' + error.toString());
     });
   }
 
