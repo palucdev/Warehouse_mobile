@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:warehouse_mobile/data/db_helper.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
@@ -87,12 +88,17 @@ class ProductListState extends State<ProductList> {
   }
 
   Widget _buildFAB() {
-    return new FloatingActionButton(
-      elevation: 0.0,
-      child: new Icon(Icons.add),
-      backgroundColor: new Color(0xFF4CAF50),
-      onPressed: _newProduct,
-    );
+    var db = new DatabaseHelper();
+    if (db.user.role == 1) {
+      return new FloatingActionButton(
+        elevation: 0.0,
+        child: new Icon(Icons.add),
+        backgroundColor: new Color(0xFF4CAF50),
+        onPressed: _newProduct
+      );
+    } else {
+      return null;
+    }
   }
 
   void _newProduct() {
