@@ -16,7 +16,6 @@ class RestDatasource {
   static const LOGIN_URL = BASE_URL + "/login";
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static const PRODUCTS_URL = BASE_URL + "/products";
-  static const PRODUCT_URL = BASE_URL + "/product";
 
   Future<Map<String, String>> _getHeaders({bool auth}) async {
     Map<String, String> headers = {
@@ -94,7 +93,7 @@ class RestDatasource {
   Future<Product> getProduct(String productID) async {
     var headers = await _getHeaders(auth: true);
 
-    var url = PRODUCT_URL + '/' + productID;
+    var url = PRODUCTS_URL + '/' + productID;
 
     return _netUtil.get(url, headers).then((dynamic res) {
       var resObj = json.decode(res);
@@ -106,7 +105,7 @@ class RestDatasource {
   Future<bool> changeProductItems(Product product, int quantity) async {
     var headers = await _getHeaders(auth: true);
 
-    var url = PRODUCT_URL + '/' + product.id;
+    var url = PRODUCTS_URL + '/' + product.id;
 
     var body = {'quantity': quantity.toString()};
 
