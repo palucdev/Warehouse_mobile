@@ -154,13 +154,17 @@ class ProductDetailsState extends State<ProductDetails> {
 	void _addProductsToWarehouse() async {
 		int quantity = await _showInputDialog();
 
-		_changeProductsQuantity(quantity);
+		if (quantity != null) {
+			_changeProductsQuantity(quantity);
+		}
 	}
 
 	void _removeProductsToWarehouse() async {
 		int quantity = await _showInputDialog();
 
-		_changeProductsQuantity(-quantity);
+		if (quantity != null) {
+			_changeProductsQuantity(-quantity);
+		}
 	}
 
 	void _changeProductsQuantity(int quantity) async {
