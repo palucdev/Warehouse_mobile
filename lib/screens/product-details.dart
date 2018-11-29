@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:warehouse_mobile/data/db_helper.dart';
+import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +143,7 @@ class ProductDetailsState extends State<ProductDetails> {
 	}
 
 	Widget _buildRemoveButton() {
-		var db = new DatabaseHelper();
+		var db = new DatabaseClient();
 		if (db.user.role == 0) {
 			return RaisedButton(
 				child: new Text(

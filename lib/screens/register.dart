@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:validate/validate.dart';
-import 'package:warehouse_mobile/data/db_helper.dart';
+import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:warehouse_mobile/services/navigation_service.dart';
@@ -144,7 +144,7 @@ class RegisterScreenState extends State<RegisterScreen> {
 
 	void onRegisterSuccess(User user) {
 		print("Register success");
-		var db = new DatabaseHelper();
+		var db = new DatabaseClient();
 		db.saveUser(user);
 
 		SharedPreferencesUtil.saveToken(user.token).then((void v) {

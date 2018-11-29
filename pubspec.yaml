@@ -23,12 +23,15 @@ dependencies:
   # Form inputs validation
   validate: ^1.7.0
 
-  # For secure memory to save token
+  # Secure memory to save token
   shared_preferences: ^0.4.3
 
   # 3rd party logging
   google_sign_in: ^3.0.4
   firebase_auth: ^0.6.2+1
+
+  # SQLite db plugin
+  sqflite: any
 
 dev_dependencies:
   flutter_test:

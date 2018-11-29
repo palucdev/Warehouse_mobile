@@ -14,6 +14,19 @@ class Product {
       this.currency,
       this.quantity});
 
+  Map toMap() {
+    Map map = {
+      "id": id,
+      "manufacturerName": manufacturerName,
+      "modelName": modelName,
+      "price": price,
+      "currency": currency,
+      "quantity": quantity
+    };
+
+    return map;
+  }
+
   factory Product.fromJson(Map<String, dynamic> parsedJson) {
     if (parsedJson.containsKey('_id') &&
         parsedJson.containsKey('manufacturerName') &&

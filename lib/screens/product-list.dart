@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:warehouse_mobile/data/db_helper.dart';
+import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
@@ -105,8 +105,8 @@ class ProductListState extends State<ProductList> {
   }
 
   void _logout() {
-    var db = new DatabaseHelper();
-    db.deleteUsers();
+    var dbClient = new DatabaseClient();
+		dbClient.deleteUsers();
 
     new NavigationService().popToLogin(this._ctx);
   }

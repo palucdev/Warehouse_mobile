@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:validate/validate.dart';
-import 'package:warehouse_mobile/data/db_helper.dart';
+import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -164,8 +164,9 @@ class LoginScreenState extends State<LoginScreen> {
 
   void onLoginSuccess(User user) {
     print("Login success");
-    var db = new DatabaseHelper();
-    db.saveUser(user);
+    var dbClient = new DatabaseClient();
+    dbClient.initDb();
+    dbClient.saveUser(user);
 
     SharedPreferencesUtil.saveToken(user.token).then((void v) {
       new NavigationService().navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
