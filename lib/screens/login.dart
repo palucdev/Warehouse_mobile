@@ -164,13 +164,17 @@ class LoginScreenState extends State<LoginScreen> {
 
   void onLoginSuccess(User user) {
     print("Login success");
-    var dbClient = new DatabaseClient();
-    dbClient.initDb();
-    dbClient.saveUser(user);
-
-    SharedPreferencesUtil.saveToken(user.token).then((void v) {
+    _appInit(user).then((void v) {
       new NavigationService().navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
     });
+  }
+
+  Future<void> _appInit(User user) async {
+    var dbClient = new DatabaseClient();
+    await dbClient.initDb();
+    dbClient.saveUser(user);
+
+    SharedPreferencesUtil.saveToken(user.token);
   }
 }
 

@@ -11,7 +11,7 @@ class RestDatasource {
 
   static const API_BASE = '/api/v1';
   static const APP_PORT = '2137';
-  static const API_ENDPOINT = 'http://192.168.43.90';
+  static const API_ENDPOINT = 'http://192.168.0.105';
   static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
   static const LOGIN_URL = BASE_URL + "/login";
   static const REGISTER_URL = BASE_URL + "/user";

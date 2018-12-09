@@ -16,14 +16,6 @@ class DatabaseClient {
 	Database _db;
 
 	String dbName = 'warehouse.db';
-	String productTableCreateQuery =
-		'CREATE TABLE Product (id INTEGER PRIMARY KEY,'
-		' manufacturerName TEXT,'
-		' modelName TEXT,'
-		' price REAL,'
-		' currency TEXT,'
-		' quantity INTEGER)';
-	String productsGetQuery = 'SELECT * FROM Product';
 
 	Future<bool> initDb() async {
 		String databasesPath = await getDatabasesPath();
@@ -35,12 +27,14 @@ class DatabaseClient {
 	}
 
 	void _onCreate(Database db, int newVersion) async {
-		await db.execute(productTableCreateQuery);
+		print('Creating table Product...');
+		await db.execute(Product.getTableCreateQuery());
 	}
 
 	//TODO: Add error handling to db operations
 	Future<List<Product>> getProducts() async {
-		var rawProducts = await _db.rawQuery(productsGetQuery);
+		var rawProducts = await _db.query('Product',
+		columns: Product.getParamKeys());
 
 		List<Product> products = [];
 		rawProducts.forEach((product) {
@@ -60,6 +54,8 @@ class DatabaseClient {
 
 			batch.commit();
 		});
+
+		return products;
 	}
 
 	Future<Product> insertProduct(Product product) async {

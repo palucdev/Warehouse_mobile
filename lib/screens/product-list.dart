@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/screens/product-details.dart';
 import 'package:warehouse_mobile/screens/product-new.dart';
 import 'package:warehouse_mobile/services/navigation_service.dart';
+import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 
 class ProductListState extends State<ProductList> {
   List<Product> _products = <Product>[];
@@ -14,15 +15,34 @@ class ProductListState extends State<ProductList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   RestDatasource api = new RestDatasource();
+	DatabaseClient dbClient = new DatabaseClient();
 
   BuildContext _ctx;
 
   Future<List<Product>> _getProducts() async {
-    return this._products = await api.getProducts();
+    return SharedPreferencesUtil.getInitFlag().then((bool initialized) async{
+      if (initialized) {
+        // App initialized previously, get data from DB
+        print('app initialized previously');
+        this._products = await dbClient.getProducts();
+        print('products downloaded from mobile db');
+      } else {
+        // First app init, get data from backend and store in db
+        print('first app init');
+				this._products = await api.getProducts();
+				print('products downloaded from backend');
+				await dbClient.insertProducts(this._products);
+				print('products inserted into mobile db');
+
+				await SharedPreferencesUtil.setInitFlag();
+      }
+
+			return this._products;
+    });
   }
 
-  Future<void> _refreshProducts() async {
-    await _getProducts();
+  Future<void> _synchronize() async {
+    //TODO: synchronization using own subtotal of products
   }
 
   void _productDetails(Product product) {
@@ -52,7 +72,7 @@ class ProductListState extends State<ProductList> {
       appBar: AppBar(
           title: Text('Tracked products'),
           leading: IconButton(
-              icon: const Icon(Icons.refresh), onPressed: _refreshProducts),
+              icon: const Icon(Icons.refresh), onPressed: _synchronize),
         actions: <Widget>[
           IconButton(icon: const Icon(Icons.power_settings_new), onPressed: _logout)
         ],
