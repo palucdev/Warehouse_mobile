@@ -110,8 +110,8 @@ class ProductDetailsState extends State<ProductDetails> {
 						onPressed: _removeProductsToWarehouse,
 					),
 					MaterialButton(
-						child: buildButtonColumn(Icons.refresh, 'Refresh'),
-						onPressed: _refreshProduct,
+						child: buildButtonColumn(Icons.refresh, 'Sync'),
+						onPressed: _syncProduct,
 					)
 				],
 			),
@@ -159,16 +159,21 @@ class ProductDetailsState extends State<ProductDetails> {
 		return null;
 	}
 
-	void _refreshProduct() async {
-		String productID = this._product.id;
+	void _syncProduct() async {
+		try {
+			int serverQuantity = await this.api.changeProductItems(this._product);
 
-		Product refreshed = await this.api.getProduct(productID);
-
-		print('Refreshed product: ' + refreshed.modelName);
-
-		setState(() {
-			this._product = refreshed;
-		});
+			setState(() {
+				this._product.quantity = serverQuantity - this._product.localQuantity;
+			});
+			Scaffold.of(_ctx).showSnackBar(
+				new SnackBar(content: Text('Successfully added products!'))
+			);
+		} catch (e) {
+			Scaffold.of(_ctx).showSnackBar(
+				new SnackBar(content: Text('Sync error: ' + e.toString()))
+			);
+		}
 	}
 
 	void _removeProduct() async {

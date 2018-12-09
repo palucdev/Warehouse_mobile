@@ -33,6 +33,9 @@ dependencies:
   # SQLite db plugin
   sqflite: any
 
+  # Device id used in sync process
+  device_id: ^0.1.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

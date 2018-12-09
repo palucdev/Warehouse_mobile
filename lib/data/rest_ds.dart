@@ -6,6 +6,8 @@ import 'package:warehouse_mobile/model/user.dart';
 import 'package:warehouse_mobile/utils/network_util.dart';
 import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 
+import 'package:device_id/device_id.dart';
+
 class RestDatasource {
   NetworkUtil _netUtil = new NetworkUtil();
 
@@ -54,7 +56,8 @@ class RestDatasource {
     });
   }
 
-  Future<User> register(String email, String password, String name, num role) async {
+  Future<User> register(
+      String email, String password, String name, num role) async {
     Map<String, String> body = {
       'email': email,
       'password': password,
@@ -66,8 +69,8 @@ class RestDatasource {
     var headers = await _getHeaders(auth: false);
 
     return _netUtil
-      .post(REGISTER_URL, body: json.encode(body), headers: headers)
-      .then((dynamic res) {
+        .post(REGISTER_URL, body: json.encode(body), headers: headers)
+        .then((dynamic res) {
       var resMap = json.decode(res);
 
       try {
@@ -138,22 +141,27 @@ class RestDatasource {
     return _netUtil.delete(url, headers);
   }
 
-  Future<bool> changeProductItems(Product product, int quantity) async {
+  Future<int> changeProductItems(Product product) async {
     var headers = await _getHeaders(auth: true);
+
+    var quantity = product.localQuantity;
+    var deviceId = await DeviceId.getID;
 
     var url = PRODUCTS_URL + '/' + product.id;
 
-    var body = {'quantity': quantity.toString()};
+    var body = {
+      Product.QUANTITY_KEY: quantity.toString(),
+			'deviceId': deviceId
+    };
 
     return _netUtil
         .patch(url, body: json.encode(body), headers: headers)
         .then((dynamic res) {
-      var response = json.decode(res);
+      var resObj = json.decode(res);
 
-      print(response);
-      return true;
+      return int.parse(resObj[Product.QUANTITY_KEY].toString());
     }).catchError((dynamic err) {
-      return false;
+      throw err;
     });
   }
 
