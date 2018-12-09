@@ -13,6 +13,7 @@ class ProductDetailsState extends State<ProductDetails> {
 	final textEditingController = TextEditingController();
 
 	RestDatasource api = new RestDatasource();
+	DatabaseClient dbClient = new DatabaseClient();
 
 	BuildContext _ctx;
 
@@ -90,7 +91,7 @@ class ProductDetailsState extends State<ProductDetails> {
 						Icons.shopping_cart,
 						color: Colors.red[500],
 					),
-					Text(this._product.quantity.toString()),
+					Text((this._product.quantity + this._product.localQuantity).toString()),
 				],
 			));
 	}
@@ -196,21 +197,18 @@ class ProductDetailsState extends State<ProductDetails> {
 
 	void _changeProductsQuantity(int quantity) async {
 		if (quantity != null) {
-			bool itemsChanged = await this.api.changeProductItems(
-				this._product, quantity);
+			this._product.localQuantity += quantity;
 
-			print(itemsChanged);
-			if (itemsChanged) {
+			try {
+				await this.dbClient.updateProduct(this._product);
 				Scaffold.of(_ctx).showSnackBar(
 					new SnackBar(content: Text('Successfully added products!'))
 				);
-			} else {
+			} catch(e) {
 				Scaffold.of(_ctx).showSnackBar(
-					new SnackBar(content: Text('Products not added, not enough room!'))
+					new SnackBar(content: Text('Products not added, error: ' + e.toString()))
 				);
 			}
-
-			_refreshProduct();
 		}
 	}
 

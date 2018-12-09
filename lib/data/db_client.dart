@@ -65,13 +65,15 @@ class DatabaseClient {
 	}
 
 	Future<Product> updateProduct(Product product) async {
-		await _db.update("Product", product.toMap(), where: 'id = ?', whereArgs: [product.id]);
+		var productIdColumn = Product.ID_KEY;
+		await _db.update("Product", product.toMap(), where: '$productIdColumn = ?', whereArgs: [product.id]);
 
 		return product;
 	}
 
 	Future<Product> removeProduct(Product product) async {
-		await _db.delete("Product", where: 'id = ?', whereArgs: [product.id]);
+		var productIdColumn = Product.ID_KEY;
+		await _db.delete("Product", where: '$productIdColumn = ?', whereArgs: [product.id]);
 
 		return product;
 	}
