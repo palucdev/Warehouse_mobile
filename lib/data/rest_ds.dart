@@ -20,7 +20,10 @@ class RestDatasource {
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static const PRODUCTS_URL = BASE_URL + "/products";
 
-  Future<Map<String, String>> _getHeaders({bool auth, bool withDeviceId}) async {
+  static const PRODUCTS_UPDATE_KEY = 'products';
+
+  Future<Map<String, String>> _getHeaders(
+      {bool auth, bool withDeviceId}) async {
     Map<String, String> headers = {
       'content-type': 'application/json',
       'accept': 'application/json'
@@ -31,8 +34,8 @@ class RestDatasource {
     }
 
     if (withDeviceId) {
-    	headers['device_id'] = await DeviceId.getID;
-		}
+      headers['device_id'] = await DeviceId.getID;
+    }
 
     return headers;
   }
@@ -125,6 +128,28 @@ class RestDatasource {
     });
   }
 
+  Future<void> updateProducts(List<Product> products) async {
+		var headers = await _getHeaders(auth: true, withDeviceId: true);
+
+		List<Map> rawProducts = [];
+		products.forEach((product) {
+			rawProducts.add(product.toMap());
+		});
+
+		var body = {
+			PRODUCTS_UPDATE_KEY: rawProducts
+		};
+
+		return _netUtil
+			.patch(PRODUCTS_URL, body: json.encode(body), headers: headers)
+			.then((dynamic res) {
+
+		}).catchError((error) {
+			//some error popup
+			print('Get products error: ' + error.toString());
+		});
+	}
+
   Future<Product> getProduct(String productID) async {
     var headers = await _getHeaders(auth: true, withDeviceId: true);
 
@@ -152,9 +177,7 @@ class RestDatasource {
 
     var url = PRODUCTS_URL + '/' + product.id;
 
-    var body = {
-      Product.QUANTITY_KEY: quantity.toString()
-    };
+    var body = {Product.QUANTITY_KEY: quantity.toString()};
 
     return _netUtil
         .patch(url, body: json.encode(body), headers: headers)

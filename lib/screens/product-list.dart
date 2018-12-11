@@ -42,7 +42,7 @@ class ProductListState extends State<ProductList> {
   }
 
   Future<void> _synchronize() async {
-    //TODO: synchronization using own subtotal of products
+		await this.api.updateProducts(this._products);
   }
 
   void _productDetails(Product product) {
