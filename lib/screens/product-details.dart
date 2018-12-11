@@ -165,6 +165,7 @@ class ProductDetailsState extends State<ProductDetails> {
 
 			setState(() {
 				this._product.quantity = serverQuantity - this._product.localQuantity;
+				this.dbClient.updateProduct(this._product);
 			});
 			Scaffold.of(_ctx).showSnackBar(
 				new SnackBar(content: Text('Successfully added products!'))

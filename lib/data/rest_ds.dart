@@ -13,14 +13,14 @@ class RestDatasource {
 
   static const API_BASE = '/api/v1';
   static const APP_PORT = '2137';
-  static const API_ENDPOINT = 'http://192.168.0.105';
+  static const API_ENDPOINT = 'http://192.168.0.171';
   static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
   static const LOGIN_URL = BASE_URL + "/login";
   static const REGISTER_URL = BASE_URL + "/user";
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static const PRODUCTS_URL = BASE_URL + "/products";
 
-  Future<Map<String, String>> _getHeaders({bool auth}) async {
+  Future<Map<String, String>> _getHeaders({bool auth, bool withDeviceId}) async {
     Map<String, String> headers = {
       'content-type': 'application/json',
       'accept': 'application/json'
@@ -30,6 +30,10 @@ class RestDatasource {
       headers['authorization'] = await SharedPreferencesUtil.getToken();
     }
 
+    if (withDeviceId) {
+    	headers['device_id'] = await DeviceId.getID;
+		}
+
     return headers;
   }
 
@@ -38,7 +42,7 @@ class RestDatasource {
 
     Map<String, String> body = {'email': email, 'password': password};
 
-    var headers = await _getHeaders(auth: false);
+    var headers = await _getHeaders(auth: false, withDeviceId: false);
 
     return _netUtil
         .post(LOGIN_URL, body: json.encode(body), headers: headers)
@@ -66,7 +70,7 @@ class RestDatasource {
       'accType': 0.toString()
     };
 
-    var headers = await _getHeaders(auth: false);
+    var headers = await _getHeaders(auth: false, withDeviceId: false);
 
     return _netUtil
         .post(REGISTER_URL, body: json.encode(body), headers: headers)
@@ -89,7 +93,7 @@ class RestDatasource {
 
     Map<String, String> body = {'accessToken': accessToken, 'idToken': idToken};
 
-    var headers = await _getHeaders(auth: false);
+    var headers = await _getHeaders(auth: false, withDeviceId: false);
 
     return _netUtil
         .post(GOOGLE_LOGIN_URL, body: json.encode(body), headers: headers)
@@ -110,7 +114,7 @@ class RestDatasource {
   }
 
   Future<List<Product>> getProducts() async {
-    var headers = await _getHeaders(auth: true);
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
     return _netUtil.get(PRODUCTS_URL, headers).then((dynamic res) {
       Iterable resCollection = json.decode(res);
@@ -122,7 +126,7 @@ class RestDatasource {
   }
 
   Future<Product> getProduct(String productID) async {
-    var headers = await _getHeaders(auth: true);
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
     var url = PRODUCTS_URL + '/' + productID;
 
@@ -134,7 +138,7 @@ class RestDatasource {
   }
 
   Future<void> removeProduct(String productID) async {
-    var headers = await _getHeaders(auth: true);
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
     var url = PRODUCTS_URL + '/' + productID;
 
@@ -142,16 +146,14 @@ class RestDatasource {
   }
 
   Future<int> changeProductItems(Product product) async {
-    var headers = await _getHeaders(auth: true);
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
     var quantity = product.localQuantity;
-    var deviceId = await DeviceId.getID;
 
     var url = PRODUCTS_URL + '/' + product.id;
 
     var body = {
-      Product.QUANTITY_KEY: quantity.toString(),
-			'deviceId': deviceId
+      Product.QUANTITY_KEY: quantity.toString()
     };
 
     return _netUtil
@@ -167,7 +169,7 @@ class RestDatasource {
 
   Future<Product> addProduct(String manufacturerName, String productModelName,
       num price, String currency) async {
-    var headers = await _getHeaders(auth: true);
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
     var body = {
       'manufacturerName': manufacturerName,
