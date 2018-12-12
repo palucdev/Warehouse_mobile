@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:warehouse_mobile/utils/network_util.dart';
@@ -20,7 +21,9 @@ class RestDatasource {
   static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
   static const PRODUCTS_URL = BASE_URL + "/products";
 
-  static const PRODUCTS_UPDATE_KEY = 'products';
+  static const PRODUCTS_TO_UPDATE_KEY = "products_to_update";
+  static const PRODUCTS_TO_ADD_KEY = "products_to_add";
+  static const PRODUCTS_TO_REMOVE_KEY = "products_to_remove";
 
   Future<Map<String, String>> _getHeaders(
       {bool auth, bool withDeviceId}) async {
@@ -128,27 +131,44 @@ class RestDatasource {
     });
   }
 
-  Future<void> updateProducts(List<Product> products) async {
-		var headers = await _getHeaders(auth: true, withDeviceId: true);
+  Future<List<Product>> updateProducts(List<Product> products) async {
+    var headers = await _getHeaders(auth: true, withDeviceId: true);
 
-		List<Map> rawProducts = [];
-		products.forEach((product) {
-			rawProducts.add(product.toMap());
-		});
+    List<Map> rawProductsToUpdate = [];
+    List<Map> rawProductsToAdd = [];
+    List<Map> rawProductsToRemove = [];
 
-		var body = {
-			PRODUCTS_UPDATE_KEY: rawProducts
-		};
+    products.forEach((product) {
+      print(product.intent.toString());
+      switch (product.intent) {
+        case Intent.UPDATE:
+          rawProductsToUpdate.add(product.toMap());
+          break;
+        case Intent.INSERT:
+          rawProductsToAdd.add(product.toMap());
+          break;
+        case Intent.REMOVE:
+          rawProductsToRemove.add(product.toMap());
+          break;
+      }
+    });
 
-		return _netUtil
-			.patch(PRODUCTS_URL, body: json.encode(body), headers: headers)
-			.then((dynamic res) {
+    var body = {
+      PRODUCTS_TO_UPDATE_KEY: rawProductsToUpdate,
+      PRODUCTS_TO_ADD_KEY: rawProductsToAdd,
+      PRODUCTS_TO_REMOVE_KEY: rawProductsToRemove
+    };
 
-		}).catchError((error) {
-			//some error popup
-			print('Get products error: ' + error.toString());
-		});
-	}
+    return _netUtil
+        .patch(PRODUCTS_URL, body: json.encode(body), headers: headers)
+        .then((dynamic res) {
+      Iterable resCollection = json.decode(res);
+      return resCollection.map((obj) => Product.fromJson(obj)).toList();
+    }).catchError((error) {
+      //some error popup
+      print('Get products error: ' + error.toString());
+    });
+  }
 
   Future<Product> getProduct(String productID) async {
     var headers = await _getHeaders(auth: true, withDeviceId: true);

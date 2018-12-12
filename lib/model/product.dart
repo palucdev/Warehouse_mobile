@@ -8,7 +8,7 @@ class Product {
   String currency;
   int quantity;
   int localQuantity = 0;
-  Intent intent = Intent.NONE;
+  Intent intent = Intent.UPDATE;
 
   static const String ID_KEY = '_id';
   static const String MANUFACTURER_NAME_KEY = 'manufacturerName';
@@ -81,7 +81,7 @@ class Product {
 
       Intent intent = parsedJson.containsKey(INTENT_KEY)
           ? Intent.values[parsedJson[INTENT_KEY]]
-          : Intent.NONE;
+          : Intent.UPDATE;
 
       return Product(
           id: parsedJson[ID_KEY],

@@ -58,6 +58,20 @@ class DatabaseClient {
 		return products;
 	}
 
+	Future<List<Product>> updateProducts(List<Product> products) async {
+		await _db.transaction((transaction) {
+			Batch batch = transaction.batch();
+
+			products.forEach((product) {
+				batch.update("Product", product.toMap());
+			});
+
+			batch.commit();
+		});
+
+		return products;
+	}
+
 	Future<Product> insertProduct(Product product) async {
 		await _db.insert("Product", product.toMap());
 

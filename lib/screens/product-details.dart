@@ -173,7 +173,7 @@ class ProductDetailsState extends State<ProductDetails> {
 								serverProduct.localQuantity = this._product.localQuantity;
 
 								this._product = serverProduct;
-								this.dbClient.insertProduct(serverProduct);
+								this.dbClient.updateProduct(serverProduct);
 
 								Scaffold.of(_ctx)
 									.showSnackBar(new SnackBar(content: Text('Product added!')));
@@ -188,7 +188,7 @@ class ProductDetailsState extends State<ProductDetails> {
 
 				setState(() {
 					this._product.quantity = serverQuantity - this._product.localQuantity;
-					this._product.intent = Intent.NONE;
+					this._product.intent = Intent.UPDATE;
 					this.dbClient.updateProduct(this._product);
 				});
 
@@ -204,9 +204,9 @@ class ProductDetailsState extends State<ProductDetails> {
 	}
 
 	void _removeProduct() async {
-		String productID = this._product.id;
+		this._product.intent = Intent.REMOVE;
 
-		await this.api.removeProduct(productID);
+		this.dbClient.updateProduct(this._product);
 
 		new NavigationService().navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
 	}

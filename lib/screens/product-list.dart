@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
+import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/screens/product-details.dart';
@@ -15,12 +16,12 @@ class ProductListState extends State<ProductList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   RestDatasource api = new RestDatasource();
-	DatabaseClient dbClient = new DatabaseClient();
+  DatabaseClient dbClient = new DatabaseClient();
 
   BuildContext _ctx;
 
   Future<List<Product>> _getProducts() async {
-    return SharedPreferencesUtil.getInitFlag().then((bool initialized) async{
+    return SharedPreferencesUtil.getInitFlag().then((bool initialized) async {
       if (initialized) {
         // App initialized previously, get data from DB
         print('app initialized previously');
@@ -29,20 +30,31 @@ class ProductListState extends State<ProductList> {
       } else {
         // First app init, get data from backend and store in db
         print('first app init');
-				this._products = await api.getProducts();
-				print('products downloaded from backend');
-				await dbClient.insertProducts(this._products);
-				print('products inserted into mobile db');
+        this._products = await api.getProducts();
+        print('products downloaded from backend');
+        await dbClient.insertProducts(this._products);
+        print('products inserted into mobile db');
 
-				await SharedPreferencesUtil.setInitFlag();
+        await SharedPreferencesUtil.setInitFlag();
       }
 
-			return this._products;
+      return this._products;
     });
   }
 
   Future<void> _synchronize() async {
-		await this.api.updateProducts(this._products);
+    try {
+      var freshProducts = await this.api.updateProducts(this._products);
+      await dbClient.updateProducts(this._products);
+
+      setState(() {
+        this._products = freshProducts;
+      });
+
+      print('Sync success!');
+    } catch (error) {
+      print('Sync failed: ' + error.toString());
+    }
   }
 
   void _productDetails(Product product) {
@@ -70,13 +82,14 @@ class ProductListState extends State<ProductList> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('Tracked products'),
-          leading: IconButton(
-              icon: const Icon(Icons.refresh), onPressed: _synchronize),
+        title: Text('Tracked products'),
+        leading: IconButton(
+            icon: const Icon(Icons.refresh), onPressed: _synchronize),
         actions: <Widget>[
-          IconButton(icon: const Icon(Icons.power_settings_new), onPressed: _logout)
+          IconButton(
+              icon: const Icon(Icons.power_settings_new), onPressed: _logout)
         ],
-          ),
+      ),
       body: futureBuilder,
       floatingActionButton: _buildFAB(),
     );
@@ -86,15 +99,17 @@ class ProductListState extends State<ProductList> {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
-          if (i.isOdd) return Divider();
-
           final index = i ~/ 2; // i by 2 with int result
 
           if (index >= _products.length) {
             return null;
           }
 
-          return _buildRow(_products[index]);
+          if (_products[index].intent != Intent.REMOVE) {
+            if (i.isOdd) return Divider();
+
+            return _buildRow(_products[index]);
+          }
         });
   }
 
@@ -126,7 +141,7 @@ class ProductListState extends State<ProductList> {
 
   void _logout() {
     var dbClient = new DatabaseClient();
-		dbClient.deleteUsers();
+    dbClient.deleteUsers();
 
     new NavigationService().popToLogin(this._ctx);
   }
