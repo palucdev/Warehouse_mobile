@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
+import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
+import 'package:uuid/uuid.dart';
 
 class _ProductData {
   String manufacturerName = '';
@@ -14,6 +17,7 @@ class NewProductState extends State<NewProduct> {
   _ProductData _data = new _ProductData();
 
   RestDatasource api = new RestDatasource();
+	DatabaseClient dbClient = new DatabaseClient();
 
   BuildContext _ctx;
 
@@ -86,17 +90,27 @@ class NewProductState extends State<NewProduct> {
 
     if (form.validate()) {
       form.save();
-      this
-          .api
-          .addProduct(this._data.manufacturerName, this._data.productModelName,
-              this._data.price, this._data.currency)
-          .then((Product product) {
-        Scaffold.of(_ctx)
-            .showSnackBar(new SnackBar(content: Text('Product added!')));
-      }).catchError((dynamic error) {
-        Scaffold.of(_ctx)
-            .showSnackBar(new SnackBar(content: Text('Product not added...')));
-      });
+
+      // temporary time based id
+      var uuid = new Uuid().v1();
+
+      Product newProduct = new Product(
+          id: uuid,
+          manufacturerName: this._data.manufacturerName,
+          modelName: this._data.productModelName,
+          price: this._data.price,
+          currency: this._data.currency,
+          localQuantity: 0,
+          quantity: 0,
+          intent: Intent.INSERT);
+
+      this.dbClient.insertProduct(newProduct).then((Product product) {
+				Scaffold.of(_ctx)
+					.showSnackBar(new SnackBar(content: Text('Product added to local db!')));
+			}).catchError((dynamic error) {
+				Scaffold.of(_ctx)
+					.showSnackBar(new SnackBar(content: Text('Product not added to local db...')));
+			});
     }
   }
 

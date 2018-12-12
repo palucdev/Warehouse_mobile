@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:warehouse_mobile/data/db_client.dart';
 import 'package:warehouse_mobile/data/rest_ds.dart';
+import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/services/navigation_service.dart';
@@ -161,15 +162,40 @@ class ProductDetailsState extends State<ProductDetails> {
 
 	void _syncProduct() async {
 		try {
-			int serverQuantity = await this.api.changeProductItems(this._product);
+			print('Sync product with intent: ' + this._product.intent.toString());
+			if (this._product.intent == Intent.INSERT) {
+				this
+					.api
+					.addProduct(this._product)
+					.then((Product serverProduct) {
+						this.dbClient.removeProduct(this._product).then((Product removed) {
+							setState(() {
+								serverProduct.localQuantity = this._product.localQuantity;
 
-			setState(() {
-				this._product.quantity = serverQuantity - this._product.localQuantity;
-				this.dbClient.updateProduct(this._product);
-			});
-			Scaffold.of(_ctx).showSnackBar(
-				new SnackBar(content: Text('Successfully added products!'))
-			);
+								this._product = serverProduct;
+								this.dbClient.insertProduct(serverProduct);
+
+								Scaffold.of(_ctx)
+									.showSnackBar(new SnackBar(content: Text('Product added!')));
+							});
+						});
+				}).catchError((dynamic error) {
+					Scaffold.of(_ctx)
+						.showSnackBar(new SnackBar(content: Text('Product not added...' + error.toString())));
+				});
+			} else {
+				int serverQuantity = await this.api.changeProductItems(this._product);
+
+				setState(() {
+					this._product.quantity = serverQuantity - this._product.localQuantity;
+					this._product.intent = Intent.NONE;
+					this.dbClient.updateProduct(this._product);
+				});
+
+				Scaffold.of(_ctx).showSnackBar(
+					new SnackBar(content: Text('Successfully synced product!'))
+				);
+			}
 		} catch (e) {
 			Scaffold.of(_ctx).showSnackBar(
 				new SnackBar(content: Text('Sync error: ' + e.toString()))

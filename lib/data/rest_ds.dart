@@ -190,16 +190,10 @@ class RestDatasource {
     });
   }
 
-  Future<Product> addProduct(String manufacturerName, String productModelName,
-      num price, String currency) async {
+  Future<Product> addProduct(Product product) async {
     var headers = await _getHeaders(auth: true, withDeviceId: true);
 
-    var body = {
-      'manufacturerName': manufacturerName,
-      'productModelName': productModelName,
-      'price': price,
-      'currency': currency
-    };
+    var body = product.toMap();
 
     return _netUtil
         .post(PRODUCTS_URL, body: json.encode(body), headers: headers)

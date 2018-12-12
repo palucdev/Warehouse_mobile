@@ -1,3 +1,5 @@
+import 'package:warehouse_mobile/model/intent.dart';
+
 class Product {
   String id;
   String manufacturerName;
@@ -6,6 +8,7 @@ class Product {
   String currency;
   int quantity;
   int localQuantity = 0;
+  Intent intent = Intent.NONE;
 
   static const String ID_KEY = '_id';
   static const String MANUFACTURER_NAME_KEY = 'manufacturerName';
@@ -14,6 +17,7 @@ class Product {
   static const String CURRENCY_KEY = 'currency';
   static const String QUANTITY_KEY = 'quantity';
   static const String LOCAL_QUANTITY_KEY = 'localQuantity';
+  static const String INTENT_KEY = 'intent';
 
   Product(
       {this.id,
@@ -22,7 +26,8 @@ class Product {
       this.price,
       this.currency,
       this.quantity,
-      this.localQuantity});
+      this.localQuantity,
+      this.intent});
 
   static List<String> getParamKeys() {
     return [
@@ -32,7 +37,8 @@ class Product {
       PRICE_KEY,
       CURRENCY_KEY,
       QUANTITY_KEY,
-      LOCAL_QUANTITY_KEY
+      LOCAL_QUANTITY_KEY,
+      INTENT_KEY
     ];
   }
 
@@ -43,7 +49,8 @@ class Product {
         ' $PRICE_KEY REAL,'
         ' $CURRENCY_KEY TEXT,'
         ' $QUANTITY_KEY INTEGER,'
-        ' $LOCAL_QUANTITY_KEY INTEGER)';
+        ' $LOCAL_QUANTITY_KEY INTEGER,'
+        ' $INTENT_KEY INTEGER)';
   }
 
   Map<String, dynamic> toMap() {
@@ -54,7 +61,8 @@ class Product {
       PRICE_KEY: price,
       CURRENCY_KEY: currency,
       QUANTITY_KEY: quantity,
-      LOCAL_QUANTITY_KEY: localQuantity
+      LOCAL_QUANTITY_KEY: localQuantity,
+      INTENT_KEY: intent.index
     };
 
     return map.cast<String, dynamic>();
@@ -67,10 +75,13 @@ class Product {
         parsedJson.containsKey(PRICE_KEY) &&
         parsedJson.containsKey(CURRENCY_KEY) &&
         parsedJson.containsKey(QUANTITY_KEY)) {
-
       int localQuantity = parsedJson.containsKey(LOCAL_QUANTITY_KEY)
           ? parsedJson[LOCAL_QUANTITY_KEY]
           : 0;
+
+      Intent intent = parsedJson.containsKey(INTENT_KEY)
+          ? Intent.values[parsedJson[INTENT_KEY]]
+          : Intent.NONE;
 
       return Product(
           id: parsedJson[ID_KEY],
@@ -79,7 +90,8 @@ class Product {
           price: parsedJson[PRICE_KEY],
           currency: parsedJson[CURRENCY_KEY],
           quantity: parsedJson[QUANTITY_KEY],
-          localQuantity: localQuantity);
+          localQuantity: localQuantity,
+          intent: intent);
     } else {
       throw new Exception('Malformed product json');
     }
