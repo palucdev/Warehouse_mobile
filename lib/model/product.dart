@@ -1,4 +1,5 @@
 import 'package:warehouse_mobile/model/intent.dart';
+import 'package:warehouse_mobile/model/sync_err_msg.dart';
 
 class Product {
   String id;
@@ -9,6 +10,8 @@ class Product {
   int quantity;
   int localQuantity = 0;
   Intent intent = Intent.UPDATE;
+  String modifiedAt = DateTime.now().toIso8601String();
+  SyncErrorMessage syncProblem = SyncErrorMessage.empty();
 
   static const String ID_KEY = '_id';
   static const String MANUFACTURER_NAME_KEY = 'manufacturerName';
@@ -18,6 +21,8 @@ class Product {
   static const String QUANTITY_KEY = 'quantity';
   static const String LOCAL_QUANTITY_KEY = 'localQuantity';
   static const String INTENT_KEY = 'intent';
+  static const String MODIFICATION_DATE_KEY = 'modifiedAt';
+  static const String SYNC_PROBLEM_KEY = 'syncProblem';
 
   Product(
       {this.id,
@@ -27,7 +32,9 @@ class Product {
       this.currency,
       this.quantity,
       this.localQuantity,
-      this.intent});
+      this.intent,
+      this.modifiedAt,
+      this.syncProblem});
 
   static List<String> getParamKeys() {
     return [
@@ -38,7 +45,9 @@ class Product {
       CURRENCY_KEY,
       QUANTITY_KEY,
       LOCAL_QUANTITY_KEY,
-      INTENT_KEY
+      INTENT_KEY,
+      MODIFICATION_DATE_KEY,
+      SYNC_PROBLEM_KEY
     ];
   }
 
@@ -50,7 +59,9 @@ class Product {
         ' $CURRENCY_KEY TEXT,'
         ' $QUANTITY_KEY INTEGER,'
         ' $LOCAL_QUANTITY_KEY INTEGER,'
-        ' $INTENT_KEY INTEGER)';
+        ' $INTENT_KEY INTEGER,'
+        ' $MODIFICATION_DATE_KEY TEXT,'
+        ' $SYNC_PROBLEM_KEY TEXT)';
   }
 
   Map<String, dynamic> toMap() {
@@ -62,7 +73,9 @@ class Product {
       CURRENCY_KEY: currency,
       QUANTITY_KEY: quantity,
       LOCAL_QUANTITY_KEY: localQuantity,
-      INTENT_KEY: intent.index
+      INTENT_KEY: intent.index,
+      MODIFICATION_DATE_KEY: modifiedAt,
+      SYNC_PROBLEM_KEY: syncProblem.errorDesc
     };
 
     return map.cast<String, dynamic>();
@@ -74,7 +87,8 @@ class Product {
         parsedJson.containsKey(MODEL_NAME_KEY) &&
         parsedJson.containsKey(PRICE_KEY) &&
         parsedJson.containsKey(CURRENCY_KEY) &&
-        parsedJson.containsKey(QUANTITY_KEY)) {
+        parsedJson.containsKey(QUANTITY_KEY) &&
+        parsedJson.containsKey(MODIFICATION_DATE_KEY)) {
       int localQuantity = parsedJson.containsKey(LOCAL_QUANTITY_KEY)
           ? parsedJson[LOCAL_QUANTITY_KEY]
           : 0;
@@ -82,6 +96,11 @@ class Product {
       Intent intent = parsedJson.containsKey(INTENT_KEY)
           ? Intent.values[parsedJson[INTENT_KEY]]
           : Intent.UPDATE;
+
+      SyncErrorMessage syncError = parsedJson.containsKey(SYNC_PROBLEM_KEY) &&
+              parsedJson[SYNC_PROBLEM_KEY] != ''
+          ? SyncErrorMessage(true, parsedJson[SYNC_PROBLEM_KEY])
+          : SyncErrorMessage.empty();
 
       return Product(
           id: parsedJson[ID_KEY],
@@ -91,7 +110,9 @@ class Product {
           currency: parsedJson[CURRENCY_KEY],
           quantity: parsedJson[QUANTITY_KEY],
           localQuantity: localQuantity,
-          intent: intent);
+          intent: intent,
+          modifiedAt: parsedJson[MODIFICATION_DATE_KEY],
+          syncProblem: syncError);
     } else {
       throw new Exception('Malformed product json');
     }

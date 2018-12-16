@@ -13,7 +13,8 @@ import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 class ProductListState extends State<ProductList> {
   List<Product> _products = <Product>[];
 
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _biggerFontNormal = const TextStyle(fontSize: 18.0, color: Colors.black);
+  final _biggerFontProblem = const TextStyle(fontSize: 18.0, color: Colors.red);
 
   RestDatasource api = new RestDatasource();
   DatabaseClient dbClient = new DatabaseClient();
@@ -43,19 +44,29 @@ class ProductListState extends State<ProductList> {
   }
 
   Future<void> _synchronize() async {
-    try {
-      var freshProducts = await this.api.updateProducts(this._products);
-      await dbClient.updateProducts(this._products);
+		this.api.updateProducts(this._products)
+			.then(_refreshProducts)
+			.catchError((error) {
+				print(error);
+		});
+		try {
 
-      setState(() {
-        this._products = freshProducts;
-      });
-
-      print('Sync success!');
     } catch (error) {
       print('Sync failed: ' + error.toString());
     }
   }
+
+  Future<void> _refreshProducts(List<Product> freshProducts) async {
+  	try {
+			await dbClient.updateProducts(freshProducts);
+
+			setState(() {
+				this._products = freshProducts;
+			});
+		} catch (error) {
+  		print('Products refresh failed' + error.toString());
+		}
+	}
 
   void _productDetails(Product product) {
     new NavigationService().materialNavigateTo(
@@ -109,7 +120,9 @@ class ProductListState extends State<ProductList> {
             if (i.isOdd) return Divider();
 
             return _buildRow(_products[index]);
-          }
+          } else {
+          	return null;
+					}
         });
   }
 
@@ -117,7 +130,7 @@ class ProductListState extends State<ProductList> {
     return ListTile(
         title: Text(
           product.modelName,
-          style: _biggerFont,
+          style: product.syncProblem.hasProblem ? _biggerFontProblem : _biggerFontNormal,
         ),
         subtitle: Text(product.manufacturerName),
         trailing: new Icon(Icons.arrow_forward),

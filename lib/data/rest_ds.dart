@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
+import 'package:warehouse_mobile/model/sync_err_msg.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:warehouse_mobile/utils/network_util.dart';
 import 'package:warehouse_mobile/utils/shared_pref_util.dart';
@@ -164,8 +165,7 @@ class RestDatasource {
         .then((dynamic res) {
       Iterable resCollection = json.decode(res);
       return resCollection.map((obj) => Product.fromJson(obj)).toList();
-    }).catchError((error) {
-      //some error popup
+    }).catchError((dynamic error) {
       print('Get products error: ' + error.toString());
     });
   }
@@ -206,7 +206,12 @@ class RestDatasource {
 
       return int.parse(resObj[Product.QUANTITY_KEY].toString());
     }).catchError((dynamic err) {
-      throw err;
+      Map<dynamic, dynamic> errObj = json.decode(err);
+      if (errObj.containsKey(Product.ID_KEY) && errObj.containsKey('message')) {
+        throw new SyncErrorMessage(true, errObj['message'].toString());
+      } else {
+        throw errObj;
+      }
     });
   }
 

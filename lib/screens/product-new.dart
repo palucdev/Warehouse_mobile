@@ -4,6 +4,8 @@ import 'package:warehouse_mobile/data/rest_ds.dart';
 import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:uuid/uuid.dart';
+import 'package:warehouse_mobile/model/sync_err_msg.dart';
+import 'package:warehouse_mobile/services/navigation_service.dart';
 
 class _ProductData {
   String manufacturerName = '';
@@ -17,7 +19,7 @@ class NewProductState extends State<NewProduct> {
   _ProductData _data = new _ProductData();
 
   RestDatasource api = new RestDatasource();
-	DatabaseClient dbClient = new DatabaseClient();
+  DatabaseClient dbClient = new DatabaseClient();
 
   BuildContext _ctx;
 
@@ -102,15 +104,21 @@ class NewProductState extends State<NewProduct> {
           currency: this._data.currency,
           localQuantity: 0,
           quantity: 0,
-          intent: Intent.INSERT);
+          intent: Intent.INSERT,
+          modifiedAt: DateTime.now().toIso8601String(),
+          syncProblem: SyncErrorMessage.empty());
 
       this.dbClient.insertProduct(newProduct).then((Product product) {
-				Scaffold.of(_ctx)
-					.showSnackBar(new SnackBar(content: Text('Product added to local db!')));
-			}).catchError((dynamic error) {
-				Scaffold.of(_ctx)
-					.showSnackBar(new SnackBar(content: Text('Product not added to local db...')));
-			});
+        Scaffold.of(_ctx).showSnackBar(
+            new SnackBar(content: Text('Product added to local db!')));
+
+        new NavigationService()
+            .navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
+      }).catchError((dynamic error) {
+        Scaffold.of(_ctx).showSnackBar(new SnackBar(
+            content:
+                Text('Product not added to local db...' + error.toString())));
+      });
     }
   }
 

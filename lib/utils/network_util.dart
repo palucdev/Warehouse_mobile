@@ -27,17 +27,21 @@ class NetworkUtil {
     }
   }
 
+  void _checkForConflictErrorCode(int statusCode, String res) {
+    if (statusCode == 409) {
+			throw res;
+		} else if (statusCode < 200 || statusCode > 400) {
+      throw new Exception("Error while fetching data: " + res);
+    }
+  }
+
   Future<dynamic> get(String url, Map headers) {
     return http.get(url, headers: headers).then((http.Response response) {
       final String res = response.body;
       final int statusCode = response.statusCode;
 
       _checkForUnauthorizedAttempt(response);
-
-      if (statusCode < 200 || statusCode > 400) {
-        throw new Exception("Error while fetching data: " + response.body);
-      }
-
+			_checkForConflictErrorCode(statusCode, res);
       _checkForTokenRefresh(response);
 
       return res;
@@ -52,11 +56,7 @@ class NetworkUtil {
       final int statusCode = response.statusCode;
 
       _checkForUnauthorizedAttempt(response);
-
-      if (statusCode < 200 || statusCode > 400) {
-        throw new Exception("Error while fetching data");
-      }
-
+			_checkForConflictErrorCode(statusCode, res);
       _checkForTokenRefresh(response);
 
       return res;
@@ -71,11 +71,7 @@ class NetworkUtil {
       final int statusCode = response.statusCode;
 
       _checkForUnauthorizedAttempt(response);
-
-      if (statusCode < 200 || statusCode > 400) {
-        throw new Exception("Error while fetching data");
-      }
-
+			_checkForConflictErrorCode(statusCode, res);
       _checkForTokenRefresh(response);
 
       return res;
@@ -90,11 +86,7 @@ class NetworkUtil {
       final int statusCode = response.statusCode;
 
       _checkForUnauthorizedAttempt(response);
-
-      if (statusCode < 200 || statusCode > 400) {
-        throw new Exception("Error while fetching data");
-      }
-
+			_checkForConflictErrorCode(statusCode, res);
       _checkForTokenRefresh(response);
 
       return res;

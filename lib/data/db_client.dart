@@ -1,106 +1,131 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:warehouse_mobile/model/user.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseClient {
-	static final DatabaseClient _instance = new DatabaseClient.internal();
-	factory DatabaseClient() => _instance;
+  static final DatabaseClient _instance = new DatabaseClient.internal();
 
-	DatabaseClient.internal();
+  factory DatabaseClient() => _instance;
 
-	User user;
+  DatabaseClient.internal();
 
-	Database _db;
+  User user;
 
-	String dbName = 'warehouse.db';
+  Database _db;
 
-	Future<bool> initDb() async {
-		String databasesPath = await getDatabasesPath();
-		String dbPath = join(databasesPath, dbName);
+  String dbName = 'warehouse.db';
 
-		_db = await openDatabase(dbPath, version: 1, onCreate: _onCreate);
+  Future<bool> initDb() async {
+    String databasesPath = await getDatabasesPath();
+    String dbPath = join(databasesPath, dbName);
 
-		return _db.isOpen;
-	}
+    _db = await openDatabase(dbPath, version: 1, onCreate: _onCreate);
 
-	void _onCreate(Database db, int newVersion) async {
-		print('Creating table Product...');
-		await db.execute(Product.getTableCreateQuery());
-	}
+    return _db.isOpen;
+  }
 
-	//TODO: Add error handling to db operations
-	Future<List<Product>> getProducts() async {
-		var rawProducts = await _db.query('Product',
-		columns: Product.getParamKeys());
+  void _onCreate(Database db, int newVersion) async {
+    print('Creating table Product...');
+    await db.execute(Product.getTableCreateQuery());
+  }
 
-		List<Product> products = [];
-		rawProducts.forEach((product) {
-			products.add(Product.fromJson(product));
-		});
+  //TODO: Add error handling to db operations
+  Future<List<Product>> getProducts() async {
+    var rawProducts;
+    List<Product> products = [];
 
-		return products;
-	}
+    try {
+      rawProducts = await _db.query('Product', columns: Product.getParamKeys());
+      rawProducts.forEach((product) {
+        products.add(Product.fromJson(product));
+      });
+    } catch (e) {
+      print('getProducts error: ' + e.toString());
+    }
 
-	Future<List<Product>> insertProducts(List<Product> products) async {
-		await _db.transaction((transaction) {
-			Batch batch = transaction.batch();
+    return products;
+  }
 
-			products.forEach((product) {
-				batch.insert("Product", product.toMap());
-			});
+  Future<List<Product>> insertProducts(List<Product> products) async {
+    await _db.transaction((transaction) {
+      Batch batch = transaction.batch();
 
-			batch.commit();
-		});
+      products.forEach((product) {
+        batch.insert("Product", product.toMap());
+      });
 
-		return products;
-	}
+      batch.commit();
+    });
 
-	Future<List<Product>> updateProducts(List<Product> products) async {
-		await _db.transaction((transaction) {
-			Batch batch = transaction.batch();
+    return products;
+  }
 
-			products.forEach((product) {
-				batch.update("Product", product.toMap());
-			});
+  Future<List<Product>> updateProducts(List<Product> products) async {
+    var productIdColumn = Product.ID_KEY;
+    getProducts().then((var values) {
+      values.forEach((product) {
+        print(product.id + ' - ' + product.modelName);
+      });
+    });
 
-			batch.commit();
-		});
+    await removeMarkedProducts();
 
-		return products;
-	}
+    await _db.transaction((transaction) {
+      Batch batch = transaction.batch();
 
-	Future<Product> insertProduct(Product product) async {
-		await _db.insert("Product", product.toMap());
+      products.forEach((Product product) {
+        print('updating product: ' + product.modelName.toString());
+        batch.update("Product", product.toMap(),
+            where: '$productIdColumn = ?', whereArgs: [product.id]);
+      });
 
-		return product;
-	}
+      batch.commit();
+    });
 
-	Future<Product> updateProduct(Product product) async {
-		var productIdColumn = Product.ID_KEY;
-		await _db.update("Product", product.toMap(), where: '$productIdColumn = ?', whereArgs: [product.id]);
+    return products;
+  }
 
-		return product;
-	}
+  Future<Product> insertProduct(Product product) async {
+    await _db.insert("Product", product.toMap());
 
-	Future<Product> removeProduct(Product product) async {
-		var productIdColumn = Product.ID_KEY;
-		await _db.delete("Product", where: '$productIdColumn = ?', whereArgs: [product.id]);
+    return product;
+  }
 
-		return product;
-	}
+  Future<Product> updateProduct(Product product) async {
+    var productIdColumn = Product.ID_KEY;
+    await _db.update("Product", product.toMap(),
+        where: '$productIdColumn = ?', whereArgs: [product.id]);
 
-	void saveUser(User user) {
-		this.user = user;
-	}
+    return product;
+  }
 
-	void deleteUsers() {
-		this.user = null;
-	}
+  Future<Product> removeProduct(Product product) async {
+    var productIdColumn = Product.ID_KEY;
+    await _db.delete("Product",
+        where: '$productIdColumn = ?', whereArgs: [product.id]);
 
-	bool isLoggedIn() {
-		return this.user != null;
-	}
+    return product;
+  }
+
+  Future<void> removeMarkedProducts() async {
+    var intentColumn = Product.INTENT_KEY;
+    await _db.delete("Product",
+        where: '$intentColumn = ?', whereArgs: [Intent.REMOVE.index]);
+  }
+
+  void saveUser(User user) {
+    this.user = user;
+  }
+
+  void deleteUsers() {
+    this.user = null;
+  }
+
+  bool isLoggedIn() {
+    return this.user != null;
+  }
 }
