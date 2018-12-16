@@ -66,11 +66,8 @@ class DatabaseClient {
 
   Future<List<Product>> updateProducts(List<Product> products) async {
     var productIdColumn = Product.ID_KEY;
-    getProducts().then((var values) {
-      values.forEach((product) {
-        print(product.id + ' - ' + product.modelName);
-      });
-    });
+    List<Product> currentProducts = await getProducts();
+    print('Current products: ' + currentProducts.toString());
 
     await removeMarkedProducts();
 
@@ -79,8 +76,14 @@ class DatabaseClient {
 
       products.forEach((Product product) {
         print('updating product: ' + product.modelName.toString());
-        batch.update("Product", product.toMap(),
+        var existing = currentProducts.firstWhere((found) => found.id == product.id, orElse:() {});
+        if ( existing != null){
+          product.localQuantity = existing.localQuantity;
+          batch.update("Product", product.toMap(),
             where: '$productIdColumn = ?', whereArgs: [product.id]);
+        } else {
+          batch.insert("Product", product.toMap());
+        }
       });
 
       batch.commit();

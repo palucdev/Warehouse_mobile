@@ -255,7 +255,7 @@ class ProductDetailsState extends State<ProductDetails> {
     this._product.intent = Intent.REMOVE;
     this._product.modifiedAt = DateTime.now().toIso8601String();
 
-    this.dbClient.updateProduct(this._product);
+    await this.dbClient.updateProduct(this._product);
 
     new NavigationService().navigateTo(NavigationRoutes.PRODUCTS, this._ctx);
   }

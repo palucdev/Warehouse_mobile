@@ -97,13 +97,15 @@ class Product {
           ? Intent.values[parsedJson[INTENT_KEY]]
           : Intent.UPDATE;
 
+      String id = parsedJson[ID_KEY];
+
       SyncErrorMessage syncError = parsedJson.containsKey(SYNC_PROBLEM_KEY) &&
               parsedJson[SYNC_PROBLEM_KEY] != ''
-          ? SyncErrorMessage(true, parsedJson[SYNC_PROBLEM_KEY])
+          ? SyncErrorMessage(true, parsedJson[SYNC_PROBLEM_KEY], id)
           : SyncErrorMessage.empty();
 
       return Product(
-          id: parsedJson[ID_KEY],
+          id: id,
           manufacturerName: parsedJson[MANUFACTURER_NAME_KEY],
           modelName: parsedJson[MODEL_NAME_KEY],
           price: parsedJson[PRICE_KEY],

@@ -165,8 +165,11 @@ class RestDatasource {
         .then((dynamic res) {
       Iterable resCollection = json.decode(res);
       return resCollection.map((obj) => Product.fromJson(obj)).toList();
-    }).catchError((dynamic error) {
-      print('Get products error: ' + error.toString());
+    }).catchError((dynamic errors) {
+      Iterable errCollection = json.decode(errors);
+      throw errCollection
+          .map((err) => SyncErrorMessage.fromJson(err))
+          .toList();
     });
   }
 
@@ -207,11 +210,8 @@ class RestDatasource {
       return int.parse(resObj[Product.QUANTITY_KEY].toString());
     }).catchError((dynamic err) {
       Map<dynamic, dynamic> errObj = json.decode(err);
-      if (errObj.containsKey(Product.ID_KEY) && errObj.containsKey('message')) {
-        throw new SyncErrorMessage(true, errObj['message'].toString());
-      } else {
-        throw errObj;
-      }
+      var syncErrMsg = new SyncErrorMessage.fromJson(errObj);
+      throw syncErrMsg;
     });
   }
 
