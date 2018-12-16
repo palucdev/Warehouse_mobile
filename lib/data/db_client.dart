@@ -76,8 +76,13 @@ class DatabaseClient {
 
       products.forEach((Product product) {
         print('updating product: ' + product.modelName.toString());
-        var existing = currentProducts.firstWhere((found) => found.id == product.id, orElse:() {});
-        if ( existing != null){
+        var existing = currentProducts.firstWhere((found) =>
+          found.modelName == product.modelName
+          && found.manufacturerName == product.manufacturerName
+          && found.price == product.price
+          && found.currency == product.currency
+        , orElse:() {});
+        if (existing != null){
           product.localQuantity = existing.localQuantity;
           batch.update("Product", product.toMap(),
             where: '$productIdColumn = ?', whereArgs: [product.id]);
