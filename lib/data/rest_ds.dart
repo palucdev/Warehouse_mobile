@@ -5,6 +5,7 @@ import 'package:warehouse_mobile/model/intent.dart';
 import 'package:warehouse_mobile/model/product.dart';
 import 'package:warehouse_mobile/model/sync_err_msg.dart';
 import 'package:warehouse_mobile/model/user.dart';
+import 'package:warehouse_mobile/utils/env_util.dart';
 import 'package:warehouse_mobile/utils/network_util.dart';
 import 'package:warehouse_mobile/utils/shared_pref_util.dart';
 
@@ -13,18 +14,30 @@ import 'package:device_id/device_id.dart';
 class RestDatasource {
   NetworkUtil _netUtil = new NetworkUtil();
 
-  static const API_BASE = '/api/v1';
-  static const APP_PORT = '2137';
-  static const API_ENDPOINT = 'http://192.168.0.171';
-  static const BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
-  static const LOGIN_URL = BASE_URL + "/login";
-  static const REGISTER_URL = BASE_URL + "/user";
-  static const GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
-  static const PRODUCTS_URL = BASE_URL + "/products";
+  // Main app API params
+  static String API_BASE, APP_PORT, API_ENDPOINT;
+
+  // API paths urls
+  static String BASE_URL, LOGIN_URL, REGISTER_URL,
+    GOOGLE_LOGIN_URL, PRODUCTS_URL;
 
   static const PRODUCTS_TO_UPDATE_KEY = "products_to_update";
   static const PRODUCTS_TO_ADD_KEY = "products_to_add";
   static const PRODUCTS_TO_REMOVE_KEY = "products_to_remove";
+
+  RestDatasource() {
+    API_ENDPOINT = 'http://' + EnvironmentUtil.getEnvValueForKey('API_ENDPOINT');
+    API_BASE = EnvironmentUtil.getEnvValueForKey('API_BASE');
+    APP_PORT = EnvironmentUtil.getEnvValueForKey('APP_PORT');
+
+    BASE_URL = API_ENDPOINT + ":" + APP_PORT + API_BASE;
+    LOGIN_URL = BASE_URL + "/login";
+    REGISTER_URL = BASE_URL + "/user";
+    GOOGLE_LOGIN_URL = BASE_URL + "/auth/google";
+    PRODUCTS_URL = BASE_URL + "/products";
+
+    print('Api endpoint: ' + API_ENDPOINT.toString());
+  }
 
   Future<Map<String, String>> _getHeaders(
       {bool auth, bool withDeviceId}) async {

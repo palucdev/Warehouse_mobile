@@ -1,7 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:warehouse_mobile/routes.dart';
+import 'package:warehouse_mobile/utils/env_util.dart';
 
-void main() => runApp(MyApp());
+Future main() async {
+	await EnvironmentUtil.loadEnvFile();
+	print('Env file loaded');
+	runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
