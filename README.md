@@ -1,13 +1,11 @@
 # Warehouse_mobile
 
 ## Screenshots
-<img src="doc/img/login_screen.png" width="250" />
-<img src="doc/img/new_user.png" width="250" />
-<img src="doc/img/product_list.png" width="250" />
-<img src="doc/img/product_details.png" width="250" />
-<img src="doc/img/quantity_change.png" width="250" />
-<img src="doc/img/list_wit,h_conflict.png" width="250" />
-<img src="doc/img/product_conflict.png" width="250" />
+<img src="doc/img/login_screen.png" width="250" />  <img src="doc/img/new_user.png" width="250" />
+<img src="doc/img/product_list.png" width="250" />  <img src="doc/img/product_details.png" width="250" />
+<img src="doc/img/quantity_change.png" width="250" />  <img src="doc/img/list_with_conflict.png" width="250" />
+<img src="doc/img/product_conflict.png" width="250" />  <img src="doc/img/google_auth.png" width="250" />
+<img src="doc/img/product_with_deleted.png" width="250" />
 
 ## Project requirements
 
